@@ -11,35 +11,31 @@ class GalleryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //
-    // Get image list
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      controller.fetchImageData();
-    });
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Gallery'),
-      ),
-      body: Obx(
-        () => GridView.builder(
-          controller: controller.scrollController,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: _numberOfColumToDisplay(context),
-            crossAxisSpacing: 4.0,
-            mainAxisSpacing: 4.0,
-          ),
-          itemCount: controller.imageData.length,
-          itemBuilder: (context, index) {
-            return _galleryItemAt(
-              context,
-              index: index,
-            );
-          },
-        ).paddingAll(5),
-      ),
-    );
+    return _isIdealSize(context)
+        ? Scaffold(
+            appBar: AppBar(
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+              title: const Text('Gallery'),
+            ),
+            body: Obx(
+              () => GridView.builder(
+                controller: controller.scrollController,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: _numberOfColumToDisplay(context),
+                  crossAxisSpacing: 4.0,
+                  mainAxisSpacing: 4.0,
+                ),
+                itemCount: controller.imageData.length,
+                itemBuilder: (context, index) {
+                  return _galleryItemAt(
+                    context,
+                    index: index,
+                  );
+                },
+              ).paddingAll(5),
+            ),
+          )
+        : Container();
   }
 
   // Gallery Item Widget
@@ -56,28 +52,46 @@ class GalleryScreen extends StatelessWidget {
         );
       },
       child: GridTile(
-        footer: GridTileBar(
-          backgroundColor: Colors.black45,
-          title: Row(
-            children: [
-              const Icon(
-                Icons.thumb_up,
-                size: 18,
-              ).paddingOnly(right: 5),
-              Text(
-                (itemData.likes ?? 0).toString(),
+        footer: MediaQuery.of(context).size.width < 150
+            ? null
+            : GridTileBar(
+                backgroundColor: Colors.black45,
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.thumb_up,
+                          size: 18,
+                        ).paddingOnly(right: 5),
+                        Text(
+                          (itemData.likes ?? 0).toString(),
+                        ),
+                      ],
+                    ).paddingOnly(right: 10),
+                    Flexible(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              (itemData.views ?? 0).toString(),
+                              style: const TextStyle(
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ).paddingOnly(right: 5),
+                          ),
+                          const Icon(
+                            Icons.visibility,
+                            size: 18,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const Spacer(),
-              Text(
-                (itemData.views ?? 0).toString(),
-              ).paddingOnly(right: 5),
-              const Icon(
-                Icons.visibility,
-                size: 20,
-              ),
-            ],
-          ),
-        ),
         child: Container(
           color: Colors.grey.shade100,
           child: Image.network(
@@ -96,7 +110,7 @@ class GalleryScreen extends StatelessWidget {
     );
   }
 
-  // Function to get number if column based on screen width
+  // To get number of column based on screen width
   int _numberOfColumToDisplay(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     const cellWidth = 200.0;
@@ -104,7 +118,14 @@ class GalleryScreen extends StatelessWidget {
     return crossAxisCount;
   }
 
-  // Function to open image in fullscreen
+  // To manage responsive app
+  bool _isIdealSize(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHight = MediaQuery.of(context).size.height;
+    return screenWidth > 150 && screenHight > 200;
+  }
+
+  // To open image in fullscreen
   void _openImagePreview(BuildContext context, String imageUrl) {
     showAnimatedDialog(
       context: context,
@@ -112,10 +133,10 @@ class GalleryScreen extends StatelessWidget {
       builder: (BuildContext context) {
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: Colors.black,
+            backgroundColor: Colors.black45,
             foregroundColor: Colors.white,
           ),
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.black45,
           body: Center(
             child: PhotoView(
               imageProvider: NetworkImage(imageUrl),

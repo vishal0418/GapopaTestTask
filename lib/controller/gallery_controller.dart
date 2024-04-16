@@ -6,6 +6,10 @@ import 'package:http/http.dart' as http;
 
 class GalleryController extends GetxController {
   //
+
+  // VARIABLE DECLARATION
+  // ---------------------------------------------------------------------------
+
   final imageData = <GalleryModel>[].obs;
 
   bool isLoading = false;
@@ -17,8 +21,12 @@ class GalleryController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    fetchImageData();
     scrollController.addListener(_scrollListener);
   }
+
+  // PRIVATE HELPER METHOD
+  // ---------------------------------------------------------------------------
 
   // Scroll listener to get images on scroll
   void _scrollListener() {
@@ -30,6 +38,9 @@ class GalleryController extends GetxController {
       fetchImageData();
     }
   }
+
+  // API CALL
+  // ---------------------------------------------------------------------------
 
   // Get image data from server using pixabay API.
   Future<void> fetchImageData() async {
